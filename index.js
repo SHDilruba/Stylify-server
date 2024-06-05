@@ -23,6 +23,7 @@ async function run() {
   try {
     const userCollection = client.db("Stylify").collection("user_collection");
     const categoryCollection = client.db("Stylify").collection("products_category");
+    const categoryProductCollection = client.db("Stylify").collection("products");
 
   console.log('database connected');
 
@@ -42,6 +43,28 @@ async function run() {
     const categoryData = categoryCollection.find();
     const result = await categoryData.toArray();
     res.send(result);
+  });
+
+  app.get("/products", async (req, res) => {
+    const cursor = categoryProductCollection.find({});
+    const products = await cursor.toArray();
+    res.send(products);
+  });
+
+  app.get("/products/category/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = {};
+    const products = await categoryProductCollection.find(query).toArray();
+    const category_products = products.filter((p) => p.category_id === id);
+    res.send(category_products);
+  });
+
+  
+  app.get("/products/:id", async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const product = await categoryProductCollection.findOne(query);
+    res.send(product);
   });
 
   } finally {
